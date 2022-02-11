@@ -1,0 +1,18 @@
+id: ppb-test-custom-X
+
+info:
+  name: template to test path setup in dockerfile
+  author: PPBInfoSec
+  severity: info
+  description: template to test path setup in dockerfile
+
+requests:
+  - method: GET
+    path:
+      - "{{BaseURL}}/"
+
+    matchers:
+      - type: word
+        part: header
+        words:
+          - "https://www.betfair.com/"
