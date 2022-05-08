@@ -1,25 +1,25 @@
-# TODO: refactor entrypoint to Go, build it statically and just use FROM scratch...
-FROM python:3.9-slim
+FROM golang:alpine3.15 AS builder
 
 ARG BIN_VERSION=2.5.7
+ARG GO_MOD=github.com/surface-security/scanner-nuclei
 
-RUN apt update \
- && apt install -y wget unzip \
- && rm -rf /var/lib/apt/lists/*
+WORKDIR /go/src/${GO_MOD}
 
-RUN wget https://github.com/projectdiscovery/nuclei/releases/download/v${BIN_VERSION}/nuclei_${BIN_VERSION}_linux_amd64.zip \
- && unzip nuclei_${BIN_VERSION}_linux_amd64.zip \
- && rm nuclei_${BIN_VERSION}_linux_amd64.zip \
- && chmod a+x nuclei \
- && mv nuclei /usr/bin/
+ADD go.mod .
+ADD go.sum .
+RUN go mod download
+ADD . . 
+RUN go build -v -ldflags="-s -w" -o "nuclei" cmd/nuclei/nuclei.go
+RUN ["./nuclei", "-ut"]
 
-RUN nuclei -ut
+FROM alpine:latest
 
+ARG GO_MOD=github.com/surface-security/scanner-nuclei
+
+COPY --from=builder /go/src/${GO_MOD}/nuclei /nuclei
 COPY ppbtemplates /root/nuclei-templates/ppb
 
 VOLUME /input
 VOLUME /output
 
-ADD entrypoint.py /
-
-ENTRYPOINT ["python3", "-u", "/entrypoint.py"]
+ENTRYPOINT ["/nuclei"]
