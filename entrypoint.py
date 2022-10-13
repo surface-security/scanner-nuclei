@@ -9,7 +9,7 @@ FILENAME_RE = re.compile(r'[^\w\d-]')
 
 
 def parseargs():
-    parser = argparse.ArgumentParser(description='httpx wrapper')
+    parser = argparse.ArgumentParser(description='nuclei wrapper')
     parser.add_argument(
         '-o', '--output',
         default='/output',
