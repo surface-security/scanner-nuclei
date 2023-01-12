@@ -1,0 +1,22 @@
+name: Fetch and merge upstream
+on:
+  schedule:
+    - cron:  '* * * * *'
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Merge upstream
+        with:
+            username: ${{ github.actor }}
+        run: |
+          git remote add upstream https://github.com/projectdiscovery/nuclei.git
+          
+          git checkout -b resync_fork origin/main
+          git fetch upstream
+          git pull --rebase upstream main
+          git rebase --abort
+          git status
+          
