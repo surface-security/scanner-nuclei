@@ -9,8 +9,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Merge upstream
-        with:
-            username: ${{ github.actor }}
         run: |
           git remote add upstream https://github.com/projectdiscovery/nuclei.git
           
