@@ -1,7 +1,8 @@
 name: Fetch and merge upstream
 on:
-  schedule:
-    - cron:  '* * * * *'
+  push:
+    branches:
+    - main
 
 jobs:
   merge:
@@ -14,6 +15,6 @@ jobs:
           
           git checkout -b resync_fork origin/main
           git fetch upstream
-          git merge temporary
+          git pull --rebase -X theirs
           git status
           
