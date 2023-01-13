@@ -1,7 +1,7 @@
 # TODO: refactor entrypoint to Go, build it statically and just use FROM scratch...
 FROM python:3.9-slim
 
-ARG BIN_VERSION=2.5.7
+ARG BIN_VERSION=2.8.6
 
 RUN apt update \
  && apt install -y wget unzip \
