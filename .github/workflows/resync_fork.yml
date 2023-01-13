@@ -14,7 +14,6 @@ jobs:
           
           git checkout -b resync_fork origin/main
           git fetch upstream
-          git pull --rebase upstream main
-          git rebase --abort
+          git merge temporary
           git status
           
