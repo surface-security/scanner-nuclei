@@ -1,8 +1,9 @@
 name: Fetch and merge upstream
 on:
-  schedule:
-    - cron:  '* * * * *'
-
+  push:
+    branches:
+    - main
+    
 jobs:
   merge:
     runs-on: ubuntu-latest
