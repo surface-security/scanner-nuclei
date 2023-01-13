@@ -3,7 +3,7 @@ on:
   push:
     branches:
     - main
-    
+
 jobs:
   merge:
     runs-on: ubuntu-latest
@@ -15,6 +15,6 @@ jobs:
           
           git checkout -b resync_fork origin/main
           git fetch upstream
-          git merge temporary
+          git pull --rebase -X theirs
           git status
           
