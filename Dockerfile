@@ -8,8 +8,8 @@ RUN apt update \
  && rm -rf /var/lib/apt/lists/*
 
 RUN wget https://github.com/projectdiscovery/nuclei/releases/download/v${BIN_VERSION}/nuclei_${BIN_VERSION}_linux_arm64.zip \
- && unzip nuclei_${BIN_VERSION}_linux_amd64.zip \
- && rm nuclei_${BIN_VERSION}_linux_amd64.zip \
+ && unzip nuclei_${BIN_VERSION}_linux_arm64.zip \
+ && rm nuclei_${BIN_VERSION}_linux_arm64.zip \
  && chmod a+x nuclei \
  && mv nuclei /usr/bin/
 
