@@ -1,4 +1,4 @@
-name: Fetch and merge upstream
+name: Resync fork
 on:
   push:
     branches:
