@@ -14,4 +14,4 @@ cd $(dirname $0)
 
 docker build -t temp_nuclei .
 
-docker run --rm --entrypoint=/nuclei -v "$TEMPL":"$TEMPL":ro temp_nuclei -t "$TEMPL" "$@"
+docker run --rm --entrypoint=/usr/local/bin/nuclei -v "$TEMPL":"$TEMPL":ro temp_nuclei -t "$TEMPL" "$@"
