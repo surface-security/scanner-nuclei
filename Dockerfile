@@ -1,4 +1,4 @@
-ARG SCANNER_VERSION=2.8.6
+ARG SCANNER_VERSION=2.9.1
 ARG DOWNLOAD_URL_PREFIX=https://github.com/projectdiscovery/nuclei/releases/download
 ARG BASE=alpine:3.15
 
