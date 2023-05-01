@@ -41,4 +41,4 @@ docker run --rm \
 echo
 echo '## output file content ##'
 echo
-cat test/output/* | grep '"matched-at":"themeisle.com"' || (echo "FAILED"; exit 1)
+cat test/output/* | grep '"matched-at":"themeisle.com:443"' || (echo "FAILED"; exit 1)

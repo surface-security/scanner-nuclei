@@ -40,7 +40,7 @@ func main() {
 
 	args := []string{
 		"-c", strconv.Itoa(*concurrency),
-		"-json",
+		"-jsonl",
 		"-l", options.Input,
 	}
 	if !*debug {
